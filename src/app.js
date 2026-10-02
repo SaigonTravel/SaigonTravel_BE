@@ -4,6 +4,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const errorHandler = require('./middlewares/errorHandler');
 
+const authRoutes = require('./routes/authRoutes');
+const tourRoutes = require('./routes/tourRoutes');
+
 const app = express();
 
 // Security & Utility Middlewares
@@ -15,6 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tours', tourRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

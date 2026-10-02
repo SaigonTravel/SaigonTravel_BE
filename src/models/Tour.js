@@ -180,7 +180,8 @@ const tourSchema = new mongoose.Schema(
 );
 
 tourSchema.index({ status: 1, isFeatured: 1, 'price.adult': 1 });
-tourSchema.index({ destinations: 1, categories: 1 });
+tourSchema.index({ destinations: 1 });
+tourSchema.index({ categories: 1 });
 tourSchema.index({ title: 'text', overview: 'text' });
 
 module.exports = mongoose.model('Tour', tourSchema);
