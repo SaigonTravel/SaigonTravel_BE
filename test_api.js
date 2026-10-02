@@ -150,10 +150,40 @@ async function runTests() {
     console.log('Update Booking Status:', updateBookingRes.status);
     console.log('Updated Booking State:', updateBookingRes.data.data?.status);
     console.log('Staff Notes Count:', updateBookingRes.data.data?.staffNotes?.length);
+
+    // 10. Test Destinations & Grouped Destinations for Mega Menu
+    console.log('\n--- 10. Testing GET /api/destinations/grouped (Mega Menu) ---');
+    const destGroupRes = await request('/api/destinations/grouped');
+    console.log('Grouped Destinations Status:', destGroupRes.status);
+    console.log('Regions Available:', destGroupRes.data.data?.map(g => `${g.regionName} (${g.items.length} điểm đến)`));
+
+    // 11. Test Categories
+    console.log('\n--- 11. Testing GET /api/categories ---');
+    const catRes = await request('/api/categories');
+    console.log('Categories Status:', catRes.status);
+    console.log('Categories List:', catRes.data.data?.map(c => `${c.name} [${c.type}]`));
+
+    // 12. Test Event Projects (YanTB Portfolio)
+    console.log('\n--- 12. Testing GET /api/event-projects (Portfolio Case Studies) ---');
+    const projectsRes = await request('/api/event-projects');
+    console.log('Projects Status:', projectsRes.status);
+    console.log('Projects List:', projectsRes.data.data?.map(p => `${p.clientName}: ${p.title} (${p.location})`));
+
+    // 13. Test Teambuilding & Events Services
+    console.log('\n--- 13. Testing GET /api/services (Teambuilding & Event Services) ---');
+    const servicesRes = await request('/api/services');
+    console.log('Services Status:', servicesRes.status);
+    console.log('Services List:', servicesRes.data.data?.map(s => `${s.title} [${s.serviceType}]`));
+
+    // 14. Test Lightbox Media Galleries
+    console.log('\n--- 14. Testing GET /api/galleries (Lightbox Albums) ---');
+    const galleriesRes = await request('/api/galleries');
+    console.log('Galleries Status:', galleriesRes.status);
+    console.log('Galleries List:', galleriesRes.data.data?.map(g => `${g.title} (${g.items?.length || 0} ảnh)`));
   } finally {
     server.close();
     await mongoose.connection.close();
-    console.log('\nAll API integration tests completed successfully!');
+    console.log('\nAll 14 API integration tests completed successfully!');
   }
 }
 

@@ -8,6 +8,11 @@ const authRoutes = require('./routes/authRoutes');
 const tourRoutes = require('./routes/tourRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const settingRoutes = require('./routes/settingRoutes');
+const destinationRoutes = require('./routes/destinationRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const eventProjectRoutes = require('./routes/eventProjectRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
 
 const app = express();
 
@@ -26,6 +31,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/settings', settingRoutes);
+app.use('/api/destinations', destinationRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/event-projects', eventProjectRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/galleries', galleryRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
