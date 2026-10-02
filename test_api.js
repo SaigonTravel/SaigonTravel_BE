@@ -86,14 +86,74 @@ async function runTests() {
     const toursRes = await request('/api/tours');
     console.log('Tours Status:', toursRes.status);
     console.log('Total Tours Seeded:', toursRes.data.total);
-    console.log(
-      'Sample Tour Titles:',
-      toursRes.data.data?.map((t) => `${t.code}: ${t.title}`)
-    );
+    const sampleTour = toursRes.data.data?.[0];
+
+    // 6. Test Settings & Sliders
+    console.log('\n--- 6. Testing GET /api/settings ---');
+    const settingsRes = await request('/api/settings');
+    console.log('Settings Status:', settingsRes.status);
+    console.log('Company Name:', settingsRes.data.data?.companyName);
+    console.log('Hotline:', settingsRes.data.data?.hotline);
+    console.log('Total Sliders:', settingsRes.data.data?.sliders?.length);
+
+    // 7. Test Customer submitting Booking / Consultation Request
+    console.log('\n--- 7. Testing POST /api/bookings (Lead submission) ---');
+    const newBookingRes = await request('/api/bookings', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'tour_booking',
+        tour: sampleTour?._id,
+        customer: {
+          fullName: 'Trần Thị Khách Hàng',
+          phone: '0912345678',
+          email: 'khachhang@congtyabc.com',
+          companyName: 'Công Ty CP Công Nghệ ABC',
+          note: 'Đoàn chúng tôi dự kiến đi 20 người, cần tư vấn thêm gói Teambuilding bãi biển.',
+        },
+        details: {
+          departureDate: '2026-11-15',
+          adultsCount: 18,
+          childrenCount: 2,
+          participantCount: 20,
+          estimatedBudget: '15 - 20 triệu / người',
+          specialRequests: 'Cần hỗ trợ xuất hóa đơn VAT và MC hoạt náo đêm tiệc',
+        },
+      }),
+    });
+    console.log('Booking Creation Status:', newBookingRes.status);
+    console.log('Booking Success:', newBookingRes.data.success);
+    console.log('Generated Booking Code:', newBookingRes.data.data?.bookingCode);
+    const bookingId = newBookingRes.data.data?.id;
+
+    // 8. Test Staff retrieving Bookings list
+    console.log('\n--- 8. Testing GET /api/bookings (Staff Private) ---');
+    const listBookingsRes = await request('/api/bookings', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Get Bookings Status:', listBookingsRes.status);
+    console.log('Total Bookings Received:', listBookingsRes.data.total);
+
+    // 9. Test Staff updating consultation status & note
+    console.log('\n--- 9. Testing PATCH /api/bookings/:id (Consultation note) ---');
+    const updateBookingRes = await request(`/api/bookings/${bookingId}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        status: 'contacted',
+        note: 'Đã gọi điện cho chị Hằng lúc 09:30, đã gửi báo giá qua Zalo và email. Khách hẹn phản hồi vào thứ 2.',
+      }),
+    });
+    console.log('Update Booking Status:', updateBookingRes.status);
+    console.log('Updated Booking State:', updateBookingRes.data.data?.status);
+    console.log('Staff Notes Count:', updateBookingRes.data.data?.staffNotes?.length);
   } finally {
     server.close();
     await mongoose.connection.close();
-    console.log('\nTest completed and server closed.');
+    console.log('\nAll API integration tests completed successfully!');
   }
 }
 

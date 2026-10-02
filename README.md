@@ -11,6 +11,11 @@ SaigonTravel_BE/
 ├── src/
 │   ├── config/
 │   │   └── db.js                 # Kết nối MongoDB (Mongoose)
+│   ├── controllers/
+│   │   ├── authController.js     # Đăng ký, đăng nhập, lấy thông tin user
+│   │   ├── tourController.js     # Danh sách & chi tiết tour
+│   │   ├── bookingController.js  # Tiếp nhận & quản lý yêu cầu tư vấn / đặt tour
+│   │   └── settingController.js  # Cấu hình website, Hotline, Banner Sliders
 │   ├── models/
 │   │   ├── User.js               # Quản trị viên, nhân viên sales, biên tập viên
 │   │   ├── Category.js           # Danh mục (Tour, Teambuilding, Dịch vụ, Bài viết)
@@ -26,61 +31,71 @@ SaigonTravel_BE/
 │   │   ├── Setting.js            # Cấu hình website, Hotline, Slider banner
 │   │   └── index.js              # Export tất cả models
 │   ├── middlewares/
+│   │   ├── auth.js               # Xác thực JWT (protect) & Phân quyền (authorize)
 │   │   └── errorHandler.js       # Middleware bắt lỗi tập trung
+│   ├── routes/
+│   │   ├── authRoutes.js         # /api/auth
+│   │   ├── tourRoutes.js         # /api/tours
+│   │   ├── bookingRoutes.js      # /api/bookings
+│   │   └── settingRoutes.js      # /api/settings
+│   ├── seeds/
+│   │   └── tourSeeder.js         # Script seed 6 tour thực tế và điểm đến
 │   ├── app.js                    # Cấu hình Express app & routes
 │   └── server.js                 # File khởi động server
 ├── .env.example
 ├── .env
 ├── package.json
+├── test_api.js                   # Script kiểm thử tự động toàn bộ API
 └── README.md
 ```
 
 ---
 
-## 2. Danh sách Schema & Mô tả quan hệ
+## 2. Danh Sách Endpoints API Đã Triển Khai
 
-| Model | Bộ sưu tập (Collection) | Mô tả chi tiết |
-|---|---|---|
-| **Tour** | `tours` | Quản lý tour du lịch: Điểm đến (`destinations`), Lịch trình từng ngày (`itinerary`), Giá người lớn/trẻ em/em bé, Bao gồm/Không bao gồm, Chính sách hoàn huỷ, FAQs, Thư viện ảnh. |
-| **Destination** | `destinations` | Điểm đến theo châu lục (Châu Á, Châu Âu, Châu Mỹ, Châu Úc, Châu Phi, Việt Nam), quốc gia, thành phố, điểm nổi bật. |
-| **Service** | `services` | Dịch vụ theo phong cách Yan Teambuilding: *Amazing Race, Teambuilding bãi biển, Gala Dinner, Year End Party, Training & Workshop, Hội nghị MICE*. |
-| **EventProject** | `event_projects` | Các sự kiện và khách hàng tiêu biểu (giống Yan Teambuilding: *NEC Việt Nam, HOANMY, Laurelton Diamonds, Shiseido, Highlands Coffee, Bosch*...). |
-| **Booking** | `bookings` | Quản lý cả 2 luồng: Đặt tour du lịch lẻ/gia đình & Yêu cầu báo giá tour đoàn, Teambuilding, MICE cho doanh nghiệp (tên cty, số lượng người, ngân sách). |
-| **Category** | `categories` | Phân loại linh hoạt theo `type` (tour, teambuilding, service, event, article). |
-| **Article** | `articles` | Tin tức du lịch & chuyên mục "Kiến thức Teambuilding", cẩm nang tổ chức. |
-| **Gallery** | `galleries` | Album ảnh hiển thị dạng Grid / Lightbox phóng to ảnh chất lượng cao. |
-| **Testimonial** | `testimonials` | Nhận xét từ du khách và đại diện phòng nhân sự/công ty. |
-| **Contact** | `contacts` | Tiếp nhận tin nhắn liên hệ từ form chân trang hoặc trang Liên hệ. |
-| **Setting** | `settings` | Quản lý Banner Sliders trang chủ, Hotline, Email, Địa chỉ, Thống kê nổi bật (17+ năm kinh nghiệm, 1000+ chuyến đi). |
-| **User** | `users` | Tài khoản Admin, Manager, Sales hỗ trợ khách hàng. |
+### 2.1. Authentication (`/api/auth`)
+| Method | Endpoint | Quyền | Mô tả |
+|---|---|---|---|
+| `POST` | `/api/auth/register` | Public | Đăng ký tài khoản (`email`, `username`, `password`, `name`, `phone`) |
+| `POST` | `/api/auth/login` | Public | Đăng nhập bằng `username` HOẶC `email`, và `password` |
+| `GET` | `/api/auth/me` | Private | Lấy thông tin user hiện tại (kèm header `Authorization: Bearer <TOKEN>`) |
+
+### 2.2. Tours (`/api/tours`)
+| Method | Endpoint | Quyền | Mô tả |
+|---|---|---|---|
+| `GET` | `/api/tours` | Public | Lấy danh sách tours (hỗ trợ lọc theo `destination`, `category`, `keyword`, `minPrice`, `maxPrice`, phân trang) |
+| `GET` | `/api/tours/:identifier` | Public | Lấy chi tiết tour theo `slug` (ví dụ `chau-au-phap-thuy-si-y-vatican-monaco`) hoặc `_id` |
+
+### 2.3. Tiếp Nhận Booking & Yêu Cầu Tư Vấn (`/api/bookings`)
+| Method | Endpoint | Quyền | Mô tả |
+|---|---|---|---|
+| `POST` | `/api/bookings` | Public | Khách hàng gửi form nhận tư vấn / đặt tour (Họ tên, SĐT, Email, Tên cty, Ngày đi, Số lượng người) -> Tự động sinh mã `SGT-YYYYMMDD-XXXX` |
+| `GET` | `/api/bookings` | Private (Staff) | Lấy danh sách yêu cầu của khách (lọc theo `status`, `type`, `keyword`, phân trang) |
+| `GET` | `/api/bookings/:id` | Private (Staff) | Chi tiết yêu cầu khách hàng kèm lịch sử ghi chú tư vấn |
+| `PATCH` | `/api/bookings/:id` | Private (Staff) | Cập nhật trạng thái (`contacted`, `processing`, `confirmed`...) và thêm ghi chú tư vấn |
+| `DELETE` | `/api/bookings/:id` | Private (Admin) | Xóa yêu cầu booking |
+
+### 2.4. Cấu Hình Website & Sliders (`/api/settings`)
+| Method | Endpoint | Quyền | Mô tả |
+|---|---|---|---|
+| `GET` | `/api/settings` | Public | Lấy cấu hình website cho Frontend render: Hotline, Email, Địa chỉ, Hero Banner Sliders, Thống kê 17+ năm kinh nghiệm |
+| `PUT` | `/api/settings` | Private (Admin) | Cập nhật thông tin website |
 
 ---
 
-## 3. Hướng dẫn chạy thử dự án
+## 3. Hướng Dẫn Sử Dụng & Test API
 
-1. **Cài đặt thư viện**:
+1. **Chạy server phát triển**:
    ```bash
-   npm install
+   npm run dev
    ```
 
-2. **Cấu hình môi trường**:
-   Kiểm tra file `.env` đã có chuỗi kết nối MongoDB:
-   ```env
-   PORT=5000
-   NODE_ENV=development
-   MONGODB_URI=mongodb://127.0.0.1:27017/saigontravel_db
+2. **Chạy lại seeder dữ liệu Tours**:
+   ```bash
+   npm run seed:tours
    ```
 
-3. **Chạy server**:
-   - Chế độ phát triển (auto reload):
-     ```bash
-     npm run dev
-     ```
-   - Chế độ sản xuất:
-     ```bash
-     npm start
-     ```
-
-4. **Kiểm tra API Health**:
-   - Truy cập: `http://localhost:5000/api/health`
-   - API Welcome: `http://localhost:5000/api`
+3. **Chạy kiểm thử toàn bộ API tự động**:
+   ```bash
+   node test_api.js
+   ```

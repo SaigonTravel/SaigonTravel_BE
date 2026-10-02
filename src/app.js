@@ -6,6 +6,8 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
 const tourRoutes = require('./routes/tourRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const settingRoutes = require('./routes/settingRoutes');
 
 const app = express();
 
@@ -22,6 +24,8 @@ if (process.env.NODE_ENV !== 'production') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/settings', settingRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -147,8 +147,62 @@ async function main() {
   ws5.addRow({ stt: 7, field: 'Yêu cầu đặc biệt (Ăn chay, phòng đơn, Teambuilding riêng...)', type: 'Tùy chọn', note: 'Ghi chú nhu cầu riêng của khách' });
   ws5.addRow({ stt: 8, field: 'Email nhận thông báo khi có khách gửi form', type: 'Cấu hình hệ thống', note: 'Mặc định: mice@saigon-travel.com' });
 
+  // Sheet 6: Thong Tin Cong Ty (Company Profile)
+  const ws6 = wb.addWorksheet('6. Thông Tin Công Ty');
+  ws6.columns = [
+    { header: 'STT', key: 'stt', width: 8 },
+    { header: 'HẠNG MỤC THÔNG TIN (*)', key: 'field', width: 35 },
+    { header: 'VÍ DỤ MẪU GỢI Ý', key: 'sample', width: 45 },
+    { header: 'THÔNG TIN THỰC TẾ TỪ SAIGON TRAVEL (*)', key: 'actual', width: 60 },
+    { header: 'VỊ TRÍ HIỂN THỊ TRÊN WEBSITE', key: 'placement', width: 32 }
+  ];
+
+  const companyFields = [
+    [1, 'Tên công ty đầy đủ (theo ĐKKD)', 'Công ty TNHH Dịch vụ Du lịch Sài Gòn (Saigon Travel)', 'Công ty TNHH Du Lịch Dịch Vụ Sài Gòn Travel', 'Chân trang (Footer), Hợp đồng'],
+    [2, 'Tên thương hiệu viết tắt', 'Saigon Travel', 'Saigon Travel', 'Header, Logo, Menu'],
+    [3, 'Khẩu hiệu / Slogan', 'Sounds Great!', 'Sounds Great!', 'Header, Banner trang chủ'],
+    [4, 'Hotline tư vấn 24/7 (*)', '(+84)8 9898 8687 / 0989 888 687', '', 'Thanh Topbar, Nút gọi nhanh'],
+    [5, 'Số điện thoại bàn / Tổng đài', '(028) 3838 xxxx', '', 'Chân trang, Trang liên hệ'],
+    [6, 'Số điện thoại phòng MICE / Khách đoàn', '0938 590 567', '', 'Trang Teambuilding & MICE'],
+    [7, 'Email chính tiếp nhận thông tin (*)', 'mice@saigon-travel.com', '', 'Chân trang, Form liên hệ'],
+    [8, 'Email chăm sóc khách hàng / CSKH', 'info@saigon-travel.com', '', 'Trang liên hệ, Chân trang'],
+    [9, 'Địa chỉ trụ sở chính (*)', '123 Nguyễn Đình Chiểu, P. 6, Q. 3, TP. Hồ Chí Minh', '', 'Chân trang, Trang liên hệ, Bản đồ'],
+    [10, 'Địa chỉ chi nhánh / VPĐD (nếu có)', 'Hà Nội / Đà Nẵng / Cần Thơ...', '', 'Trang liên hệ'],
+    [11, 'Giờ làm việc văn phòng (*)', 'Thứ 2 - Thứ 6: 08:30 - 17:30 | Thứ 7: 08:30 - 12:00', '', 'Topbar, Trang liên hệ'],
+    [12, 'Mã số thuế doanh nghiệp (MST)', '0312xxxxxx', '', 'Chân trang (Footer)'],
+    [13, 'Số Giấy phép Lữ hành Quốc tế', 'GP-LHQT số: 79-xxxx/20xx/TCDL-GP LHQT', '', 'Chân trang (Tạo uy tín cho web)'],
+    [14, 'Link Fanpage Facebook', 'https://www.facebook.com/SaigonTravel/', '', 'Icon mạng xã hội Header & Footer'],
+    [15, 'Số Zalo OA / Zalo tư vấn nhanh', '0989898687', '', 'Nút chat Zalo nổi góc màn hình'],
+    [16, 'Link Kênh Youtube (nếu có)', 'https://youtube.com/@saigontravel', '', 'Icon mạng xã hội'],
+    [17, 'Link Kênh TikTok (nếu có)', 'https://tiktok.com/@saigontravel', '', 'Icon mạng xã hội'],
+    [18, 'Link Kênh Instagram (nếu có)', 'https://instagram.com/saigontravel', '', 'Icon mạng xã hội'],
+    [19, 'Số năm kinh nghiệm nổi bật', 'Hơn 17 năm kinh nghiệm (từ năm 2007)', '', 'Khối thống kê Trang chủ (Số to)'],
+    [20, 'Số chương trình / tour đã tổ chức', '1.000+ Chuyến đi thành công', '', 'Khối thống kê Trang chủ (Số to)'],
+    [21, 'Số lượt khách hàng đã phục vụ', '50.000+ Khách hàng hài lòng', '', 'Khối thống kê Trang chủ (Số to)'],
+    [22, 'Tài khoản ngân hàng công ty', 'Ngân hàng VCB - STK: 007100xxxx - CTY TNHH SAIGON TRAVEL', '', 'Trang Hướng dẫn thanh toán'],
+    [23, 'Link Drive chứa Logo gốc & Ảnh công ty', 'Google Drive link (File PNG nền trong suốt, file vector AI)', '', 'Header logo, Favicon, Banner']
+  ];
+
+  companyFields.forEach(cf => {
+    const r = ws6.addRow(cf);
+    r.height = 26;
+    r.eachCell((cell, colNum) => {
+      cell.font = { name: 'Arial', size: 10, italic: colNum === 3 };
+      cell.alignment = { vertical: 'middle', wrapText: true };
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+      };
+      if (colNum === 4) {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFBEB' } }; // Light yellow highlight for actual input
+      }
+    });
+  });
+
   // Format headers
-  [ws1, ws2, ws3, ws4, ws5].forEach(ws => {
+  [ws1, ws2, ws3, ws4, ws5, ws6].forEach(ws => {
     ws.getRow(1).height = 28;
     ws.getRow(1).eachCell(cell => {
       cell.fill = {
@@ -162,8 +216,19 @@ async function main() {
   });
 
   const destPath = path.resolve('D:/personal_prj/SaiGonTravel/Mau_Khao_Sat_Data_Tour_SaigonTravel.xlsx');
-  await wb.xlsx.writeFile(destPath);
-  console.log('SUCCESS_CREATED_AT:', destPath);
+  const fullPath = path.resolve('D:/personal_prj/SaiGonTravel/Mau_Khao_Sat_Data_SaigonTravel_Full.xlsx');
+  try {
+    await wb.xlsx.writeFile(destPath);
+    console.log('SUCCESS_CREATED_AT:', destPath);
+  } catch (err) {
+    if (err.code === 'EBUSY') {
+      console.log(`Notice: File ${destPath} is currently opened in Excel. Writing to ${fullPath}...`);
+      await wb.xlsx.writeFile(fullPath);
+      console.log('SUCCESS_CREATED_AT:', fullPath);
+    } else {
+      throw err;
+    }
+  }
 }
 
 main().catch(err => {
