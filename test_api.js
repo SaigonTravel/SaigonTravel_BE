@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const app = require('./src/app');
 const http = require('http');
 
+const connectDB = require('./src/config/db');
+
 async function runTests() {
-  const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/saigontravel_db';
-  await mongoose.connect(mongoUri);
+  await connectDB();
   console.log('Connected to MongoDB for API testing.');
 
   // Clean test user if exists
@@ -180,11 +181,100 @@ async function runTests() {
     const galleriesRes = await request('/api/galleries');
     console.log('Galleries Status:', galleriesRes.status);
     console.log('Galleries List:', galleriesRes.data.data?.map(g => `${g.title} (${g.items?.length || 0} ảnh)`));
+
+    // Promote tester to Admin to test Admin/Manager Tour CRUD
+    await User.updateOne({ username: 'saigontester' }, { role: 'admin' });
+    const adminLoginRes = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username: 'saigontester', password: 'Password123@' }),
+    });
+    const adminToken = adminLoginRes.data.data?.token;
+
+    // 15. Test Admin POST /api/tours (Create Tour)
+    console.log('\n--- 15. Testing POST /api/tours (Admin Create Tour) ---');
+    const dest = destGroupRes.data.data?.[0]?.items?.[0];
+    const cat = catRes.data.data?.[0];
+    const createTourRes = await request('/api/tours', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        title: 'Tour Test Khám Phá Mới 2026',
+        destinations: [dest?._id],
+        categories: [cat?._id],
+        duration: { days: 4, nights: 3, text: '4 Ngày 3 Đêm' },
+        price: { adult: 12500000, child: 9000000, currency: 'VND' },
+        highlights: ['Khách sạn 4 sao', 'Trọn gói ăn uống'],
+      }),
+    });
+    console.log('Create Tour Status:', createTourRes.status);
+    console.log('Created Tour Code & Title:', createTourRes.data.data?.code, createTourRes.data.data?.title);
+    const createdTourId = createTourRes.data.data?._id;
+
+    // 16. Test Admin PUT /api/tours/:id (Update Tour)
+    console.log('\n--- 16. Testing PUT /api/tours/:id (Admin Update Tour) ---');
+    const updateTourRes = await request(`/api/tours/${createdTourId}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        title: 'Tour Test Khám Phá Mới 2026 (Đã cập nhật giá)',
+        price: { adult: 11900000, child: 8500000, currency: 'VND' },
+        isFeatured: true,
+      }),
+    });
+    console.log('Update Tour Status:', updateTourRes.status);
+    console.log('Updated Adult Price:', updateTourRes.data.data?.price?.adult);
+    console.log('Updated isFeatured:', updateTourRes.data.data?.isFeatured);
+
+    // 17. Test Admin PATCH /api/tours/:id/status (Quick Status & Hot Toggle)
+    console.log('\n--- 17. Testing PATCH /api/tours/:id/status ---');
+    const statusTourRes = await request(`/api/tours/${createdTourId}/status`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${adminToken}` },
+      body: JSON.stringify({
+        status: 'draft',
+        isHot: true,
+      }),
+    });
+    console.log('Patch Tour Status:', statusTourRes.status);
+    console.log('Updated Status Field:', statusTourRes.data.data?.status);
+    console.log('Updated isHot Field:', statusTourRes.data.data?.isHot);
+
+    // 18. Test Admin POST /api/tours/:id/duplicate (Duplicate Tour)
+    console.log('\n--- 18. Testing POST /api/tours/:id/duplicate ---');
+    const duplicateTourRes = await request(`/api/tours/${createdTourId}/duplicate`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    console.log('Duplicate Tour Status:', duplicateTourRes.status);
+    console.log('Duplicated Tour Title:', duplicateTourRes.data.data?.title);
+    console.log('Duplicated Tour Code:', duplicateTourRes.data.data?.code);
+    const duplicatedTourId = duplicateTourRes.data.data?._id;
+
+    // 19. Test Admin DELETE /api/tours/:id (Delete Tour)
+    console.log('\n--- 19. Testing DELETE /api/tours/:id (Admin Delete Tour) ---');
+    const deleteTourRes = await request(`/api/tours/${createdTourId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${adminToken}` },
+    });
+    console.log('Delete Tour Status:', deleteTourRes.status);
+    console.log('Delete Tour Message:', deleteTourRes.data.message);
+
+    // Clean up duplicated tour as well
+    if (duplicatedTourId) {
+      await request(`/api/tours/${duplicatedTourId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+    }
   } finally {
     server.close();
     await mongoose.connection.close();
-    console.log('\nAll 14 API integration tests completed successfully!');
+    console.log('\nAll 19 API integration tests completed successfully!');
+    process.exit(0);
   }
 }
 
-runTests().catch(console.error);
+runTests().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

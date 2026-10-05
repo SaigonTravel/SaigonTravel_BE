@@ -18,6 +18,6 @@ router.get('/:identifier', getDestinationDetail);
 // Admin Routes
 router.post('/', protect, authorize('admin', 'manager'), createDestination);
 router.put('/:id', protect, authorize('admin', 'manager'), updateDestination);
-router.delete('/:id', protect, authorize('admin'), deleteDestination);
+router.delete('/:id', protect, authorize('admin', 'manager'), deleteDestination);
 
 module.exports = router;

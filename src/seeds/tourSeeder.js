@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const connectDB = require('../config/db');
 const { Tour, Destination, Category } = require('../models');
 
 const sampleDestinations = [
@@ -134,8 +135,7 @@ const sampleCategories = [
 
 const seedTours = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/saigontravel_db';
-    await mongoose.connect(mongoUri);
+    await connectDB();
     console.log('Connected to MongoDB for seeding...');
 
     // 1. Seed Categories

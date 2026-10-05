@@ -16,6 +16,6 @@ router.get('/:identifier', getServiceDetail);
 // Admin routes
 router.post('/', protect, authorize('admin', 'manager'), createService);
 router.put('/:id', protect, authorize('admin', 'manager'), updateService);
-router.delete('/:id', protect, authorize('admin'), deleteService);
+router.delete('/:id', protect, authorize('admin', 'manager'), deleteService);
 
 module.exports = router;

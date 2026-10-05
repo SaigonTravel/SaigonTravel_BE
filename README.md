@@ -84,11 +84,16 @@ SaigonTravel_BE/
 | `GET` | `/api/categories` | Public | Lấy danh mục (lọc theo `type`: `tour`, `service`, `teambuilding`, `article`) |
 | `GET` | `/api/categories/:identifier` | Public | Chi tiết danh mục |
 
-### 2.4. Danh Sách & Chi Tiết Tour (`/api/tours`)
+### 2.4. Quản Lý & Chi Tiết Tour (`/api/tours`)
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
 | `GET` | `/api/tours` | Public | Danh sách tours (lọc theo `destination`, `category`, `keyword`, `minPrice`, `maxPrice`, phân trang) |
 | `GET` | `/api/tours/:identifier` | Public | Chi tiết tour (lịch trình từng ngày, đa mức giá, chính sách hoàn hủy, faqs) |
+| `POST` | `/api/tours` | Private (Admin, Manager) | Tạo tour mới (tự sinh mã SGT-XXXX và slug) |
+| `PUT` | `/api/tours/:id` | Private (Admin, Manager) | Cập nhật đầy đủ thông tin tour |
+| `PATCH` | `/api/tours/:id/status` | Private (Admin, Manager) | Cập nhật nhanh trạng thái (`published`/`draft`/`archived`), gắn cờ `isFeatured`, `isHot` |
+| `POST` | `/api/tours/:id/duplicate` | Private (Admin, Manager) | Nhân bản một tour có sẵn thành bản sao nháp (Draft) với mã tour mới |
+| `DELETE` | `/api/tours/:id` | Private (Admin only) | Xóa tour |
 
 ### 2.5. Sự Kiện Tiêu Biểu / Portfolio Khách Hàng (`/api/event-projects`)
 | Method | Endpoint | Quyền | Mô tả |

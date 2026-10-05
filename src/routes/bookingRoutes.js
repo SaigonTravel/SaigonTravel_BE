@@ -17,6 +17,6 @@ router.post('/', createBooking);
 router.get('/', protect, getBookings);
 router.get('/:id', protect, getBookingById);
 router.patch('/:id', protect, updateBooking);
-router.delete('/:id', protect, authorize('admin'), deleteBooking);
+router.delete('/:id', protect, authorize('admin', 'manager'), deleteBooking);
 
 module.exports = router;

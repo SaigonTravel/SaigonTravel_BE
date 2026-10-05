@@ -1,11 +1,11 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
+const connectDB = require('../config/db');
 const { Service, EventProject, Gallery, Category } = require('../models');
 
 async function seedContent() {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/saigontravel_db';
-    await mongoose.connect(mongoUri);
+    await connectDB();
     console.log('Connected to MongoDB for Content Seeding...');
 
     // 1. Get or create categories for teambuilding and services
