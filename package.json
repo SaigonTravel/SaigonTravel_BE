@@ -8,6 +8,8 @@
     "dev": "nodemon src/server.js",
     "seed:tours": "node src/seeds/tourSeeder.js",
     "seed:content": "node src/seeds/contentSeeder.js",
+    "seed:admin": "node src/seeds/adminSeeder.js",
+    "db:sync-indexes": "node src/seeds/syncIndexes.js",
     "seed:all": "node src/seeds/tourSeeder.js && node src/seeds/contentSeeder.js"
   },
   "keywords": [

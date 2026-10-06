@@ -31,12 +31,19 @@ const identifierParam = { ...idParam, description: 'Slug hoặc MongoDB ObjectId
 const q = (name, schema, description) => ({ name, in: 'query', schema, description });
 const boolQuery = (name, description) => q(name, { type: 'string', enum: ['true', 'false'] }, description);
 
+// Tour & Event Project có trạng thái nháp: gửi token admin/manager (không bắt buộc) để xem được draft/archived
+const DRAFT_TAGS = ['Tours', 'Event Projects'];
+const draftNote = 'Khách chỉ thấy nội dung `published`. Gửi token admin/manager để xem draft/archived.';
+
 // Sinh nhanh CRUD chuẩn: GET list, GET detail, POST, PUT, DELETE (admin/manager)
-const crud = ({ tag, schema, listParams = [], label }) => ({
+const crud = ({ tag, schema, listParams = [], label }) => {
+  const publicRead = DRAFT_TAGS.includes(tag) ? { description: draftNote, security: [{}, { bearerAuth: [] }] } : {};
+  return {
   list: {
     get: {
       tags: [tag],
       summary: `Lấy danh sách ${label}`,
+      ...publicRead,
       parameters: listParams,
       responses: { 200: ok({ type: 'array', items: ref(schema) }) },
     },
@@ -52,6 +59,7 @@ const crud = ({ tag, schema, listParams = [], label }) => ({
     get: {
       tags: [tag],
       summary: `Lấy chi tiết ${label} theo slug hoặc id`,
+      ...publicRead,
       parameters: [identifierParam],
       responses: { 200: ok(ref(schema)), ...errorResponses },
     },
@@ -71,7 +79,8 @@ const crud = ({ tag, schema, listParams = [], label }) => ({
       responses: { 200: ok({ type: 'object' }), ...errorResponses, ...authResponses },
     },
   },
-});
+  };
+};
 
 const destinations = crud({
   tag: 'Destinations',
@@ -106,6 +115,7 @@ const eventProjects = crud({
   listParams: [
     boolQuery('isFeatured'),
     q('keyword', { type: 'string' }),
+    q('status', { type: 'string', enum: ['published', 'draft', 'all'], default: 'published' }, 'Chỉ có tác dụng với admin/manager'),
     q('page', { type: 'integer', default: 1 }),
     q('limit', { type: 'integer', default: 12 }),
   ],
@@ -128,7 +138,7 @@ const tours = crud({
     q('maxPrice', { type: 'number' }),
     boolQuery('isFeatured'),
     boolQuery('isHot'),
-    q('status', { type: 'string', enum: ['published', 'draft', 'archived', 'all'], default: 'published' }),
+    q('status', { type: 'string', enum: ['published', 'draft', 'archived', 'all'], default: 'published' }, 'Chỉ có tác dụng với admin/manager'),
     q('page', { type: 'integer', default: 1 }),
     q('limit', { type: 'integer', default: 10 }),
     q('sortBy', { type: 'string', default: 'createdAt' }),
@@ -285,12 +295,12 @@ const schemas = {
   Gallery: withBase('GalleryInput'),
   TourInput: {
     type: 'object',
-    required: ['title'],
+    required: ['title', 'destinations'],
     properties: {
       title: { type: 'string', example: 'Tour Nhật Bản 6N5Đ' },
       slug: { type: 'string', description: 'Tự sinh từ title nếu bỏ trống' },
       code: { type: 'string' },
-      destinations: { type: 'array', items: { type: 'string' }, description: 'Destination ObjectIds' },
+      destinations: { type: 'array', minItems: 1, items: { type: 'string' }, description: 'Destination ObjectIds (ít nhất 1)' },
       categories: { type: 'array', items: { type: 'string' }, description: 'Category ObjectIds' },
       duration: {
         type: 'object',
@@ -348,7 +358,7 @@ const schemas = {
       videoUrl: { type: 'string' },
       isFeatured: { type: 'boolean' },
       isHot: { type: 'boolean' },
-      status: { type: 'string', enum: ['draft', 'published', 'archived'] },
+      status: { type: 'string', enum: ['draft', 'published', 'archived'], default: 'draft' },
       seo: { ...seo, properties: { ...seo.properties, ogImage: { type: 'string' } } },
     },
   },

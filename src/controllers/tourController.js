@@ -1,5 +1,7 @@
 const slugify = require('slugify');
+const generateUniqueCode = require('../utils/generateUniqueCode');
 const { Tour, Destination, Category } = require('../models');
+const { canViewDrafts } = require('../middlewares/auth');
 
 /**
  * @desc    Lấy danh sách tours (Hỗ trợ lọc, tìm kiếm, phân trang)
@@ -25,8 +27,10 @@ exports.getTours = async (req, res, next) => {
 
     const query = {};
 
-    // Nếu có truyền status cụ thể hoặc mặc định là published (nếu là 'all' thì không lọc status)
-    if (status && status !== 'all') {
+    // Khách chỉ thấy tour published; admin/manager được lọc theo status (status=all để lấy tất cả)
+    if (!canViewDrafts(req.user)) {
+      query.status = 'published';
+    } else if (status && status !== 'all') {
       query.status = status;
     }
 
@@ -102,6 +106,9 @@ exports.getTourDetail = async (req, res, next) => {
     // Tìm kiếm theo slug hoặc _id
     const isObjectId = identifier.match(/^[0-9a-fA-F]{24}$/);
     const query = isObjectId ? { _id: identifier } : { slug: identifier };
+    if (!canViewDrafts(req.user)) {
+      query.status = 'published';
+    }
 
     const tour = await Tour.findOne(query)
       .populate('destinations', 'name slug region country city thumbnail description highlights')
@@ -189,11 +196,7 @@ exports.createTour = async (req, res, next) => {
     }
 
     // Tự sinh mã tour nếu không truyền
-    let tourCode = code;
-    if (!tourCode) {
-      const rand = Math.floor(1000 + Math.random() * 9000);
-      tourCode = `SGT-${rand}`;
-    }
+    const tourCode = code || (await generateUniqueCode(Tour, 'SGT-'));
 
     const newTour = await Tour.create({
       title: title.trim(),
@@ -220,7 +223,7 @@ exports.createTour = async (req, res, next) => {
       videoUrl: videoUrl || '',
       isFeatured: !!isFeatured,
       isHot: !!isHot,
-      status: status || 'published',
+      status: status || 'draft',
       seo: seo || {},
     });
 
@@ -367,8 +370,7 @@ exports.duplicateTour = async (req, res, next) => {
 
     const newTitle = `${originalTour.title} (Bản sao)`;
     const newSlug = `${originalTour.slug}-copy-${Date.now().toString().slice(-4)}`;
-    const rand = Math.floor(1000 + Math.random() * 9000);
-    const newCode = `SGT-${rand}`;
+    const newCode = await generateUniqueCode(Tour, 'SGT-');
 
     const duplicatedTour = await Tour.create({
       ...originalTour,

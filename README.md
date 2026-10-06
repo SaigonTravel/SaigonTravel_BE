@@ -142,4 +142,10 @@ npm run seed:all
 
 # 3. Chạy kiểm thử tự động toàn bộ 14 API
 node test_api.js
+
+# 4. Tạo / nâng quyền tài khoản admin (khai báo ADMIN_* trong .env trước)
+npm run seed:admin
+
+# 5. Đồng bộ index MongoDB theo schema (chạy sau khi sửa index trong models)
+npm run db:sync-indexes
 ```

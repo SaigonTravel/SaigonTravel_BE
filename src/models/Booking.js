@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const generateUniqueCode = require('../utils/generateUniqueCode');
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -79,12 +80,12 @@ const bookingSchema = new mongoose.Schema(
 bookingSchema.pre('save', async function (next) {
   if (!this.code) {
     const datePrefix = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    this.code = `SGT-${datePrefix}-${randomSuffix}`;
+    this.code = await generateUniqueCode(this.constructor, `SGT-${datePrefix}-`);
   }
   next();
 });
 
-bookingSchema.index({ code: 1, status: 1, 'customer.phone': 1, 'customer.email': 1 });
+// Phục vụ màn hình admin: lọc theo status, sắp xếp mới nhất (code đã có unique index riêng)
+bookingSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Booking', bookingSchema);

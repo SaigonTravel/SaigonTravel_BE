@@ -151,6 +151,7 @@ async function seedContent() {
           'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200',
         ],
         isFeatured: true,
+        status: 'published',
         order: 1,
       },
       {
@@ -171,6 +172,7 @@ async function seedContent() {
           'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1200',
         ],
         isFeatured: true,
+        status: 'published',
         order: 2,
       },
       {
@@ -191,6 +193,7 @@ async function seedContent() {
           'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1200',
         ],
         isFeatured: true,
+        status: 'published',
         order: 3,
       },
       {
@@ -211,6 +214,7 @@ async function seedContent() {
           'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200',
         ],
         isFeatured: true,
+        status: 'published',
         order: 4,
       },
     ];
