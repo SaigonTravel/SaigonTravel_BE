@@ -53,13 +53,18 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
     },
-    destinations: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Destination',
-        required: true,
+    destinations: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Destination',
+        },
+      ],
+      validate: {
+        validator: (value) => Array.isArray(value) && value.length > 0,
+        message: 'Tour phải có ít nhất một điểm đến (destinations)',
       },
-    ],
+    },
     categories: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -158,14 +163,14 @@ const tourSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['draft', 'published', 'archived'],
-      default: 'published',
+      default: 'draft',
     },
     viewCount: {
       type: Number,
       default: 0,
     },
     rating: {
-      average: { type: Number, default: 5 },
+      average: { type: Number, default: 0, min: 0, max: 5 },
       count: { type: Number, default: 0 },
     },
     seo: {
@@ -181,6 +186,5 @@ const tourSchema = new mongoose.Schema(
 tourSchema.index({ status: 1, isFeatured: 1, 'price.adult': 1 });
 tourSchema.index({ destinations: 1 });
 tourSchema.index({ categories: 1 });
-tourSchema.index({ title: 'text', overview: 'text' });
 
 module.exports = mongoose.model('Tour', tourSchema);

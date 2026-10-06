@@ -6,12 +6,12 @@ const {
   updateEventProject,
   deleteEventProject,
 } = require('../controllers/eventProjectController');
-const { protect, authorize } = require('../middlewares/auth');
+const { protect, authorize, optionalAuth } = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/', getEventProjects);
-router.get('/:identifier', getEventProjectDetail);
+router.get('/', optionalAuth, getEventProjects);
+router.get('/:identifier', optionalAuth, getEventProjectDetail);
 
 // Admin routes
 router.post('/', protect, authorize('admin', 'manager'), createEventProject);

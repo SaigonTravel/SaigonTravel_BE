@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const swaggerUi = require('swagger-ui-express');
 const errorHandler = require('./middlewares/errorHandler');
+const connectDB = require('./config/db');
 const swaggerSpec = require('./docs/swagger');
 
 const authRoutes = require('./routes/authRoutes');
@@ -34,6 +35,17 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
+
+// Đảm bảo đã kết nối MongoDB trước khi vào route (Vercel không chạy server.js nên không có bước connect lúc khởi động)
+app.use('/api', async (req, res, next) => {
+  if (req.path === '/health') return next();
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

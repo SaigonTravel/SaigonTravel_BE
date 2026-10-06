@@ -8,13 +8,13 @@ const {
   updateTourStatus,
   duplicateTour,
 } = require('../controllers/tourController');
-const { protect, authorize } = require('../middlewares/auth');
+const { protect, authorize, optionalAuth } = require('../middlewares/auth');
 
 const router = express.Router();
 
 // Public routes
-router.get('/', getTours);
-router.get('/:identifier', getTourDetail);
+router.get('/', optionalAuth, getTours);
+router.get('/:identifier', optionalAuth, getTourDetail);
 
 // Admin & Manager routes
 router.post('/', protect, authorize('admin', 'manager'), createTour);

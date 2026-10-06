@@ -1,4 +1,5 @@
 const { EventProject } = require('../models');
+const { canViewDrafts } = require('../middlewares/auth');
 
 /**
  * @desc    Lấy danh sách các sự kiện tiêu biểu / Case Studies (Phong cách YanTB)
@@ -7,8 +8,15 @@ const { EventProject } = require('../models');
  */
 exports.getEventProjects = async (req, res, next) => {
   try {
-    const { isFeatured, keyword, page = 1, limit = 12 } = req.query;
-    const query = { status: 'published' };
+    const { isFeatured, keyword, status = 'published', page = 1, limit = 12 } = req.query;
+    const query = {};
+
+    // Khách chỉ thấy published; admin/manager được lọc theo status (status=all để lấy tất cả)
+    if (!canViewDrafts(req.user)) {
+      query.status = 'published';
+    } else if (status && status !== 'all') {
+      query.status = status;
+    }
 
     if (isFeatured !== undefined) {
       query.isFeatured = isFeatured === 'true';
@@ -56,6 +64,9 @@ exports.getEventProjectDetail = async (req, res, next) => {
     const { identifier } = req.params;
     const isObjectId = identifier.match(/^[0-9a-fA-F]{24}$/);
     const query = isObjectId ? { _id: identifier } : { slug: identifier };
+    if (!canViewDrafts(req.user)) {
+      query.status = 'published';
+    }
 
     const project = await EventProject.findOne(query).populate('service', 'title slug serviceType');
 

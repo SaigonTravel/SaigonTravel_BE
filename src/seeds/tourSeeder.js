@@ -618,6 +618,10 @@ const seedTours = async () => {
     const insertedTours = await Tour.insertMany(toursData);
     console.log(`Successfully seeded ${insertedTours.length} tours!`);
 
+    // Tạo lại các index (unique slug/code, ...) đã bị drop ở bước 3
+    await Tour.syncIndexes();
+    console.log('Tour indexes rebuilt.');
+
     await mongoose.connection.close();
     console.log('Seeding completed. MongoDB connection closed.');
   } catch (error) {

@@ -44,7 +44,7 @@ const articleSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['draft', 'published'],
-      default: 'published',
+      default: 'draft',
     },
     isFeatured: {
       type: Boolean,
@@ -64,6 +64,5 @@ const articleSchema = new mongoose.Schema(
 );
 
 articleSchema.index({ status: 1, isFeatured: 1, category: 1, createdAt: -1 });
-articleSchema.index({ title: 'text', content: 'text' });
 
 module.exports = mongoose.model('Article', articleSchema);

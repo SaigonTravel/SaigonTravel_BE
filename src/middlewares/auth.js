@@ -51,6 +51,32 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+// Middleware xác thực tùy chọn: có token hợp lệ thì gán req.user, không có/không hợp lệ vẫn cho qua như khách
+exports.optionalAuth = async (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer')) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(
+      header.split(' ')[1],
+      process.env.JWT_SECRET || 'saigontravel_secret_fallback'
+    );
+    const currentUser = await User.findById(decoded.id);
+    if (currentUser && currentUser.isActive) {
+      req.user = currentUser;
+    }
+  } catch (error) {
+    // Token sai/hết hạn: coi như khách vãng lai
+  }
+  next();
+};
+
+// Các role được xem nội dung nháp (draft/archived) qua API public
+const CONTENT_MANAGER_ROLES = ['admin', 'manager'];
+exports.canViewDrafts = (user) => Boolean(user && CONTENT_MANAGER_ROLES.includes(user.role));
+
 // Middleware phân quyền theo role (admin, manager, sales...)
 exports.authorize = (...roles) => {
   return (req, res, next) => {
