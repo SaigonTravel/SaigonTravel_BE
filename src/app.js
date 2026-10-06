@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
 const errorHandler = require('./middlewares/errorHandler');
+const swaggerSpec = require('./docs/swagger');
 
 const authRoutes = require('./routes/authRoutes');
 const tourRoutes = require('./routes/tourRoutes');
@@ -15,6 +17,13 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 
 const app = express();
+
+// API Docs (Swagger UI) - đặt trước helmet vì CSP mặc định chặn asset của Swagger UI
+app.get(['/api-docs.json', '/api/docs.json'], (req, res) => res.json(swaggerSpec));
+app.use(['/api-docs', '/api/docs'], swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Saigon Travel API Docs',
+  swaggerOptions: { persistAuthorization: true },
+}));
 
 // Security & Utility Middlewares
 app.use(helmet());
@@ -53,6 +62,7 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     description: 'API phục vụ website Du lịch, Teambuilding, Sự kiện & MICE phong cách Yan Teambuilding',
     endpoints: {
+      docs: '/api/docs',
       health: '/api/health',
       tours: '/api/tours',
       destinations: '/api/destinations',

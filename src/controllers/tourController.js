@@ -205,7 +205,7 @@ exports.createTour = async (req, res, next) => {
       departureLocation: departureLocation || 'TP. Hồ Chí Minh',
       departureSchedule: departureSchedule || '',
       departureDates: departureDates || [],
-      price: price || { adult: 0, child: 0, infant: 0, currency: 'VND' },
+      price: price || { adult: 0, child: 0, currency: 'VND' },
       groupSize: groupSize || { min: 1, max: 50 },
       languages: languages || ['Tiếng Việt'],
       overview: overview || '',

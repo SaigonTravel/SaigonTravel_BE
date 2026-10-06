@@ -195,7 +195,6 @@ const seedTours = async () => {
         price: {
           adult: 89900000,
           child: 76900000,
-          infant: 29900000,
           singleSupplement: 18000000,
           originalPrice: 95000000,
           currency: 'VND',
@@ -328,7 +327,6 @@ const seedTours = async () => {
         price: {
           adult: 18990000,
           child: 16200000,
-          infant: 6000000,
           singleSupplement: 4500000,
           originalPrice: 21900000,
           currency: 'VND',
@@ -418,7 +416,6 @@ const seedTours = async () => {
         price: {
           adult: 32900000,
           child: 28500000,
-          infant: 9500000,
           singleSupplement: 8500000,
           originalPrice: 36000000,
           currency: 'VND',
@@ -484,7 +481,6 @@ const seedTours = async () => {
         price: {
           adult: 15990000,
           child: 13900000,
-          infant: 5500000,
           originalPrice: 17900000,
           currency: 'VND',
         },
@@ -522,7 +518,6 @@ const seedTours = async () => {
         price: {
           adult: 4890000,
           child: 3600000,
-          infant: 1200000,
           originalPrice: 5500000,
           currency: 'VND',
         },
@@ -598,7 +593,6 @@ const seedTours = async () => {
         price: {
           adult: 3250000,
           child: 2450000,
-          infant: 800000,
           originalPrice: 3800000,
           currency: 'VND',
         },

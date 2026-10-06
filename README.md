@@ -64,6 +64,8 @@ SaigonTravel_BE/
 
 ## 2. Danh Sách Endpoints API Cho Frontend
 
+> 📘 **Swagger UI:** chạy server rồi mở `http://localhost:5000/api/docs` (hoặc `/api-docs`; spec JSON: `/api/docs.json`). Spec nằm ở `src/docs/swagger.js` — nhớ cập nhật khi thêm/sửa API.
+
 ### 2.1. Authentication (`/api/auth`)
 | Method | Endpoint | Quyền | Mô tả |
 |---|---|---|---|
