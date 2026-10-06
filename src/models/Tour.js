@@ -88,7 +88,6 @@ const tourSchema = new mongoose.Schema(
     price: {
       adult: { type: Number, required: true, default: 0 },
       child: { type: Number, default: 0 },
-      infant: { type: Number, default: 0 },
       singleSupplement: { type: Number, default: 0 },
       originalPrice: { type: Number, default: 0 },
       currency: { type: String, default: 'VND' },
