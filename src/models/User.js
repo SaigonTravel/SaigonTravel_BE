@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'manager', 'editor', 'sales', 'customer'],
+      enum: ['admin', 'manager', 'editor', 'sales', 'customer'],  //admin toàn quyền, manager quản lý nội dung và nhân sự, editor viết bài và sửa tour, sales xử lý khách liên hệ
       default: 'customer',
     },
     avatar: {

@@ -16,6 +16,6 @@ router.get('/:identifier', getEventProjectDetail);
 // Admin routes
 router.post('/', protect, authorize('admin', 'manager'), createEventProject);
 router.put('/:id', protect, authorize('admin', 'manager'), updateEventProject);
-router.delete('/:id', protect, authorize('admin'), deleteEventProject);
+router.delete('/:id', protect, authorize('admin', 'manager'), deleteEventProject);
 
 module.exports = router;

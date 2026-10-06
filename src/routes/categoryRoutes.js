@@ -16,6 +16,6 @@ router.get('/:identifier', getCategoryDetail);
 // Admin Routes
 router.post('/', protect, authorize('admin', 'manager'), createCategory);
 router.put('/:id', protect, authorize('admin', 'manager'), updateCategory);
-router.delete('/:id', protect, authorize('admin'), deleteCategory);
+router.delete('/:id', protect, authorize('admin', 'manager'), deleteCategory);
 
 module.exports = router;
